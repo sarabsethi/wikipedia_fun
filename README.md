@@ -1,6 +1,8 @@
 # wikipedia_fun
 Some fun automated versions of classic wikipedia games
 
+![Example of a successful game](https://raw.githubusercontent.com/sarabsethi/wikipedia_fun/master/wiki_game_success.PNG)
+
 I'm using Python 3.6. Dependencies `lxml`,`nltk` - but I think these come with Anaconda anyway 
 
 If you use Python 2.X you'll have to change to using urllib2, but the rest may just work.
