@@ -10,7 +10,7 @@ each subsequent page you end up on the page for philosophy 95% of the time
 
 Big claim, easy to test
 
-Apparently this used to be true, but now there are lots more cycles, notably from
+This may have previously been true, but now there are lots more cycles, notably from
 the article for Science which comes up quite often. If we purposely jump out of
 loops this works quite nicely
 '''
