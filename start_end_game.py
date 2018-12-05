@@ -112,8 +112,8 @@ if __name__ == '__main__':
 
     # Get target link word and its synonyms
     matched_end_word, end_page_syns = get_syns_from_wiki_link(END_PAGE_LINK)
-    print('Start link: {}, end link: {}'.format(START_PAGE_LINK,END_PAGE_LINK))
-    print('Looking for words matching {}'.format(matched_end_word))
+    print('Start link: {}, end link: {}'.format(START_PAGE_LINK.split('/wiki/')[1],END_PAGE_LINK.split('/wiki/')[1]))
+    #print('Looking for words matching {}'.format(matched_end_word))
 
     next_pg = START_PAGE_LINK
     while True:
@@ -188,7 +188,8 @@ if __name__ == '__main__':
         else:
             backwards_steps = 0
 
-        print('Next page is {}. Matched word: {} ({})'.format(next_pg,best_match_word,round(best_link_score,2)))
+        #print('Next page is {}. Matched word: {} ({})'.format(next_pg,best_match_word,round(best_link_score,2)))
+        print('Next page is {}. Match score = {}'.format(next_pg.split('/wiki/')[1],round(best_link_score,2)))
 
         # If we're being lenient a score of 1 is counted as a win, otherwise must reach the end page
         if (best_link_score == 1 and not STRICT_MODE) or next_pg == END_PAGE_LINK:
