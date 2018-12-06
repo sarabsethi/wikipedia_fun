@@ -36,10 +36,10 @@ Sarab S Sethi (http://www.imperial.ac.uk/people/s.sethi16)
 s.sethi16@imperial.ac.uk
 '''
 
-START_PAGE_LINK = '/wiki/LPGA'
+START_PAGE_LINK = '/wiki/Ginza'
 END_PAGE_LINK = '/wiki/Reason'
 STRICT_MODE = True
-RANDOM_MODE = False
+RANDOM_MODE = 0
 
 def get_syns_from_wiki_link(link, no_nouns=False):
     '''
@@ -115,8 +115,13 @@ if __name__ == '__main__':
 
     # Get target link word and its synonyms
     end_page_syns = get_syns_from_wiki_link(END_PAGE_LINK)
+    if len(end_page_syns) == 0:
+        print('No synonyms found for the end link - try a different end point')
+        sys.exit()
+
     print('Start link: {}, end link: {}'.format(START_PAGE_LINK.split('/wiki/')[1],END_PAGE_LINK.split('/wiki/')[1]))
     #print('Looking for words matching {}'.format(matched_end_word))
+
 
     next_pg = START_PAGE_LINK
     while True:
@@ -173,8 +178,8 @@ if __name__ == '__main__':
                         score = i.wup_similarity(j) # Wu-Palmer Similarity
                         # Distribution is probably bimodal at least (most words have multiple meanings)
                         # Therefore let's only look for the average of good matches to our word
-                        if score is None or score < 0.7: continue
-                        scores.append(score)
+                        if score is None or score < 0.3: scores.append(0)
+                        else: scores.append(score)
                     mean_score = np.mean(np.asarray(scores))
 
                     # Update our tracker of the best link to follow
