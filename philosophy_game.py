@@ -21,13 +21,17 @@ if __name__ == "__main__":
     visited_pgs = []
 
     next_pg = "/wiki/Special:Random"
+    start_pg = ''
     while True:
         this_pg = next_pg
         visited_pgs.append(this_pg)
 
         # Get the raw HTML for our page
         response = urllib.request.urlopen(wiki_root + next_pg)
-        print(response.geturl().split('/wiki/')[1])
+        pg_name = response.geturl().split('/wiki/')[1]
+        print(pg_name)
+        if start_pg == '':
+            start_pg = pg_name
         html = response.read()
         tree = fromstring(html)
 
@@ -55,5 +59,5 @@ if __name__ == "__main__":
                         break
 
         if '/wiki/Philosophy' in next_pg:
-            print('Found it!')
+            print('Found it! Took {} steps from {}'.format(len(visited_pgs),start_pg))
             sys.exit()
