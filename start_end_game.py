@@ -1,11 +1,14 @@
 import sys
 from lxml.html import fromstring, tostring
 import re
-import urllib.request
 from nltk.corpus import wordnet as wn
 from itertools import product
 import nltk
 import numpy as np
+try:
+    import urllib.request as urlrequest
+except ImportError:
+    import urllib2 as urlrequest
 
 '''
 My go at automating the Wikipedia game (https://en.wikipedia.org/wiki/Wikipedia:Wiki_Game)
@@ -87,11 +90,11 @@ def get_rand_start_end_links():
     # We need to make sure we can actually find synonyms for the start and end
     # pages before committing to them
     while start_syns is None:
-        start_response = urllib.request.urlopen('https://en.wikipedia.org/wiki/Special:Random')
+        start_response = urlrequest.urlopen('https://en.wikipedia.org/wiki/Special:Random')
         start_link = start_response.geturl().split('en.wikipedia.org')[1]
         start_syns = get_syns_from_wiki_link(start_link, no_nouns=True)
     while end_page_syns is None:
-        end_response = urllib.request.urlopen('https://en.wikipedia.org/wiki/Special:Random')
+        end_response = urlrequest.urlopen('https://en.wikipedia.org/wiki/Special:Random')
         end_link = end_response.geturl().split('en.wikipedia.org')[1]
         end_page_syns = get_syns_from_wiki_link(end_link, no_nouns=True)
 
@@ -120,7 +123,7 @@ if __name__ == '__main__':
         this_pg = next_pg
         next_pg = ''
         visited_pgs.append(this_pg)
-        response = urllib.request.urlopen(wiki_root + this_pg)
+        response = urlrequest.urlopen(wiki_root + this_pg)
         html = response.read()
 
         # Read HTML into a lxml object

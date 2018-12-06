@@ -1,7 +1,10 @@
 import sys
 from lxml.html import fromstring, tostring
 import re
-import urllib.request
+try:
+    import urllib.request as urlrequest
+except ImportError:
+    import urllib2 as urlrequest
 
 '''
 Apparently if you click the first link in any Wikipedia article and do the same on
@@ -27,7 +30,7 @@ if __name__ == "__main__":
         visited_pgs.append(this_pg)
 
         # Get the raw HTML for our page
-        response = urllib.request.urlopen(wiki_root + next_pg)
+        response = urlrequest.urlopen(wiki_root + next_pg)
         pg_name = response.geturl().split('/wiki/')[1]
         print(pg_name)
         if start_pg == '':
