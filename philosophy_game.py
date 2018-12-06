@@ -54,6 +54,6 @@ if __name__ == "__main__":
                     else:
                         break
 
-        if 'philosophy' in next_pg:
+        if '/wiki/Philosophy' in next_pg:
             print('Found it!')
             sys.exit()
