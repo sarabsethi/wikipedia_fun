@@ -25,9 +25,6 @@ RANDOM_MODE generates random start and end points. This is pretty tough and most
 of the time the game ends on failure. Set the links manually to give the game a
 better chance of finishing. Recommended value: False
 
-STRICT_MODE defines whether you have to land on exactly the correct end page or
-whether something "close enough" is fine. Recommended value: True
-
 Just a bit of fun - but would love some input from people who know more about word matching
 to make it cleverer / faster. Major limitation is matching is done on single words
 there's no concept of phrases or titles made up of multiple words
@@ -38,7 +35,6 @@ s.sethi16@imperial.ac.uk
 
 START_PAGE_LINK = '/wiki/Ginza'
 END_PAGE_LINK = '/wiki/Reason'
-STRICT_MODE = True
 RANDOM_MODE = 0
 
 def get_syns_from_wiki_link(link, no_nouns=False):
