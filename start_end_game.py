@@ -5,6 +5,7 @@ import urllib.request
 from nltk.corpus import wordnet as wn
 from itertools import product
 import nltk
+import numpy as np
 
 '''
 My go at automating the Wikipedia game (https://en.wikipedia.org/wiki/Wikipedia:Wiki_Game)
@@ -32,8 +33,8 @@ Sarab S Sethi (http://www.imperial.ac.uk/people/s.sethi16)
 s.sethi16@imperial.ac.uk
 '''
 
-START_PAGE_LINK = '/wiki/Financial_engineering'
-END_PAGE_LINK = '/wiki/Reality'
+START_PAGE_LINK = '/wiki/Laser_cutting'
+END_PAGE_LINK = '/wiki/Angel'
 STRICT_MODE = True
 RANDOM_MODE = False
 
@@ -48,7 +49,6 @@ def get_syns_from_wiki_link(link, no_nouns=False):
     Input:
         link (str): link to wikipedia page
     Output:
-        word_str (str): the word used from the title
         syns (list): synonyms found from wordnet for word_str
     '''
 
@@ -56,22 +56,22 @@ def get_syns_from_wiki_link(link, no_nouns=False):
     title_str = re.sub('[^A-Za-z0-9]+', ' ', title_str)
     separate_words = title_str.split(' ')
 
-    syns = None
+    syns = []
     for word in separate_words:
-        syns = wn.synsets(word)
+        word_syns = wn.synsets(word)
 
         # Filter out nouns
         if no_nouns:
             non_nouns_syns = []
-            for s in syns:
+            for s in word_syns:
                 if '.n.' not in str(s): non_nouns_syns.append(s)
-            syns = non_nouns_syns
+            word_syns = non_nouns_syns
 
-        if syns is not None and len(syns) > 0:
+        if word_syns is not None and len(word_syns) > 0:
+            syns += word_syns
             # Valid synonyms found for word
-            break
 
-    return word, syns
+    return syns
 
 def get_rand_start_end_links():
     '''
@@ -89,11 +89,11 @@ def get_rand_start_end_links():
     while start_syns is None:
         start_response = urllib.request.urlopen('https://en.wikipedia.org/wiki/Special:Random')
         start_link = start_response.geturl().split('en.wikipedia.org')[1]
-        matched_start_word, start_syns = get_syns_from_wiki_link(start_link, no_nouns=True)
+        start_syns = get_syns_from_wiki_link(start_link, no_nouns=True)
     while end_page_syns is None:
         end_response = urllib.request.urlopen('https://en.wikipedia.org/wiki/Special:Random')
         end_link = end_response.geturl().split('en.wikipedia.org')[1]
-        matched_end_word, end_page_syns = get_syns_from_wiki_link(end_link, no_nouns=True)
+        end_page_syns = get_syns_from_wiki_link(end_link, no_nouns=True)
 
     return start_link, end_link
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         print('Randomly generated start and end pages')
 
     # Get target link word and its synonyms
-    matched_end_word, end_page_syns = get_syns_from_wiki_link(END_PAGE_LINK)
+    end_page_syns = get_syns_from_wiki_link(END_PAGE_LINK)
     print('Start link: {}, end link: {}'.format(START_PAGE_LINK.split('/wiki/')[1],END_PAGE_LINK.split('/wiki/')[1]))
     #print('Looking for words matching {}'.format(matched_end_word))
 
@@ -143,7 +143,6 @@ if __name__ == '__main__':
         p_nodes = tree.xpath('p')
 
         best_link_score = 0
-        best_match_word = ''
         for para in p_nodes:
             # Links are in <a href='/wiki/Blah_blah' .../> form
             link_nodes = para.xpath('a')
@@ -156,22 +155,24 @@ if __name__ == '__main__':
                     link_bit = link_match.split('href="')[1]
 
                     # Get synonyms for a word in the link title
-                    matched_link_word, link_syns = get_syns_from_wiki_link(link_bit)
+                    link_syns = get_syns_from_wiki_link(link_bit)
                     if link_syns is None:
                         continue
 
                     # Find the similarity of this link's synonyms to our target end page synonyms
                     maxscore = 0
+                    scores = []
                     for i,j in list(product(end_page_syns,link_syns)):
                         score = i.wup_similarity(j) # Wu-Palmer Similarity
-                        if score is None: continue
-                        maxscore = score if maxscore < score else maxscore
+                        if score is None or score < 0.7: continue
+                        scores.append(score)
+                        #maxscore = score if maxscore < score else maxscore
+                    mean_score = np.mean(np.asarray(scores))
 
                     # Update our tracker of the best link to follow
-                    if maxscore > best_link_score and not (link_bit in visited_pgs):
+                    if mean_score > best_link_score and not (link_bit in visited_pgs):
                         next_pg = link_bit
-                        best_link_score = maxscore
-                        best_match_word = matched_link_word
+                        best_link_score = mean_score
 
         # If there were no links on this page, mark it as bad. Then backtrack until
         # we find a non-bad page we have visited to find a different link
@@ -188,11 +189,10 @@ if __name__ == '__main__':
         else:
             backwards_steps = 0
 
-        #print('Next page is {}. Matched word: {} ({})'.format(next_pg,best_match_word,round(best_link_score,2)))
         print('Next page is {}. Match score = {}'.format(next_pg.split('/wiki/')[1],round(best_link_score,2)))
 
         # If we're being lenient a score of 1 is counted as a win, otherwise must reach the end page
-        if (best_link_score == 1 and not STRICT_MODE) or next_pg == END_PAGE_LINK:
+        if (best_link_score == 1 and not STRICT_MODE) or next_pg.lower() == END_PAGE_LINK.lower():
             print('Found it - game over!')
             print('Got from {} to {} in {} steps'.format(START_PAGE_LINK,next_pg,len(visited_pgs)))
             sys.exit()
