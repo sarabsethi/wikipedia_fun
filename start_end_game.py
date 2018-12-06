@@ -36,8 +36,8 @@ Sarab S Sethi (http://www.imperial.ac.uk/people/s.sethi16)
 s.sethi16@imperial.ac.uk
 '''
 
-START_PAGE_LINK = '/wiki/Laser_cutting'
-END_PAGE_LINK = '/wiki/Angel'
+START_PAGE_LINK = '/wiki/LPGA'
+END_PAGE_LINK = '/wiki/Reason'
 STRICT_MODE = True
 RANDOM_MODE = False
 
@@ -157,19 +157,24 @@ if __name__ == '__main__':
                     link_match = re.search(r'href=[\'"]?([^\'" >]+)', link_str).group(0)
                     link_bit = link_match.split('href="')[1]
 
+                    if link_bit.lower() == END_PAGE_LINK.lower():
+                        print('Found it - game over!')
+                        print('Got from {} to {} in {} steps'.format(START_PAGE_LINK,END_PAGE_LINK,len(visited_pgs)))
+                        sys.exit()
+
                     # Get synonyms for a word in the link title
                     link_syns = get_syns_from_wiki_link(link_bit)
                     if link_syns is None:
                         continue
 
                     # Find the similarity of this link's synonyms to our target end page synonyms
-                    maxscore = 0
                     scores = []
                     for i,j in list(product(end_page_syns,link_syns)):
                         score = i.wup_similarity(j) # Wu-Palmer Similarity
+                        # Distribution is probably bimodal at least (most words have multiple meanings)
+                        # Therefore let's only look for the average of good matches to our word
                         if score is None or score < 0.7: continue
                         scores.append(score)
-                        #maxscore = score if maxscore < score else maxscore
                     mean_score = np.mean(np.asarray(scores))
 
                     # Update our tracker of the best link to follow
@@ -193,9 +198,3 @@ if __name__ == '__main__':
             backwards_steps = 0
 
         print('Next page is {}. Match score = {}'.format(next_pg.split('/wiki/')[1],round(best_link_score,2)))
-
-        # If we're being lenient a score of 1 is counted as a win, otherwise must reach the end page
-        if (best_link_score == 1 and not STRICT_MODE) or next_pg.lower() == END_PAGE_LINK.lower():
-            print('Found it - game over!')
-            print('Got from {} to {} in {} steps'.format(START_PAGE_LINK,next_pg,len(visited_pgs)))
-            sys.exit()
