@@ -1,5 +1,6 @@
 word2vec_model/*.bin
 word2vec_model/*.txt
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

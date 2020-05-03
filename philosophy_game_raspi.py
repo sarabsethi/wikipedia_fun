@@ -1,4 +1,5 @@
 import sys
+import os
 from lxml.html import fromstring, tostring
 import re
 try:
@@ -23,10 +24,61 @@ the article for Science which comes up quite often. If we purposely jump out of
 loops this works quite nicely
 '''
 
+N_WON_SAVEF = 'num_games_won.txt'
+def get_n_won():
+    '''
+    Get total number of games won (from savefile)
+    '''
+
+    if os.path.exists(N_WON_SAVEF):
+        with open(N_WON_SAVEF, 'r') as f:
+            n_won = f.readline()
+    else:
+        n_won = 0
+
+    return int(n_won)
+
+
+def increment_games_won():
+    '''
+    Increment the number of games won in the save file
+    '''
+
+    n_won = get_n_won() + 1
+
+    with open(N_WON_SAVEF, 'w') as f:
+        f.write('{}'.format(n_won))
+
+    return n_won
+
+
+LCD_W = 20
+def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix):
+    # Print number of games won (with commas for thousands, millions etc.)
+    print(f'#{n_won:,}'[:LCD_W].center(LCD_W))
+
+    # Print start page (and scroll text if long enough)
+    print('{}'.format(start_pg_name)[scroll_ix:scroll_ix+LCD_W].center(LCD_W))
+    if len(start_pg_name) > LCD_W:
+        scroll_ix = scroll_ix + 1
+        if scroll_ix + LCD_W > len(start_pg_name):
+            scroll_ix = 0
+
+    # Print current page
+    print('{}'.format(pg_name)[:LCD_W].center(LCD_W))
+
+    # Print number of steps
+    print('{}'.format(n_steps).center(LCD_W))
+
+    return scroll_ix
+
+
 if __name__ == "__main__":
     STATE_PLAYING = 0
     STATE_WON = 1
     STATE_IMPOSSIBLE = 2
+
+    n_won = get_n_won()
 
     while True:
         wiki_root = 'https://en.wikipedia.org'
@@ -36,6 +88,7 @@ if __name__ == "__main__":
         next_pg = "/wiki/Special:Random"
         start_pg_name = ''
         game_state = STATE_PLAYING
+        scroll_ix = 0
 
         while game_state is STATE_PLAYING:
             this_pg = next_pg
@@ -51,7 +104,8 @@ if __name__ == "__main__":
                 pg_name = tree.xpath("//h1[@id='firstHeading']")[0].text_content()
                 if start_pg_name == '':
                     start_pg_name = pg_name
-                print('({}: {}) {}'.format(start_pg_name, len(visited_pgs)-1, pg_name))
+
+                scroll_ix = update_screen(start_pg_name, pg_name, len(visited_pgs)-1, n_won, scroll_ix)
 
                 # Pull out paragraphs from the div holding the interesting content
                 tree = tree.xpath("//div[@class='mw-parser-output']")[0]
@@ -93,5 +147,6 @@ if __name__ == "__main__":
                     break
 
             if next_pg == '/wiki/Philosophy':
-                print('Found it! Took {} steps from {}'.format(len(visited_pgs),start_pg_name))
+                n_won = increment_games_won()
+                print('Found it! Took {} steps from {} (n_won = {})'.format(len(visited_pgs),start_pg_name,n_won))
                 game_state = STATE_WON
