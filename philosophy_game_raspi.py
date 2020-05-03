@@ -89,6 +89,6 @@ if __name__ == "__main__":
                     game_state = STATE_IMPOSSIBLE
                     break
 
-            if '/wiki/Philosophy' in next_pg:
-                print('Found it! Took {} steps from {}'.format(len(visited_pgs)-1,start_pg_name))
+            if next_pg == '/wiki/Philosophy':
+                print('Found it! Took {} steps from {}'.format(len(visited_pgs),start_pg_name))
                 game_state = STATE_WON
