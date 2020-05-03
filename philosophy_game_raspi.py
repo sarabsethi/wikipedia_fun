@@ -30,17 +30,20 @@ if __name__ == "__main__":
     while True:
         wiki_root = 'https://en.wikipedia.org'
         visited_pgs = []
+        no_link_pgs = []
 
         next_pg = "/wiki/Special:Random"
+        next_pg = "/wiki/On_Dangerous_Ground_(1915_film)"
         start_pg = ''
         game_state = STATE_PLAYING
 
         while game_state is STATE_PLAYING:
             this_pg = next_pg
+            next_pg = ''
             visited_pgs.append(this_pg)
 
             # Get the raw HTML for our page
-            response = urlrequest.urlopen(wiki_root + next_pg)
+            response = urlrequest.urlopen(wiki_root + this_pg)
 
             html = response.read()
             tree = fromstring(html)
@@ -63,13 +66,23 @@ if __name__ == "__main__":
                         # If we haven't previously visited this link, this is our new target page
                         link_match = re.search(r'href=[\'"]?([^\'" >]+)', link_str).group(0)
                         link_bit = link_match.split('href="')[1]
-                        next_pg = link_bit
 
-                        if next_pg not in visited_pgs:
+                        if link_bit not in visited_pgs:
+                            next_pg = link_bit
                             break
                 else:
                     continue         # only executed if the inner loop did NOT break
                 break                # only executed if the inner loop DID break
+
+            # Remember which pages leave us with no links
+            if next_pg == '':
+                no_link_pgs.append(link_bit)
+
+            # Make sure we have a valid next page to go to
+            ix = -2
+            while next_pg in no_link_pgs or next_pg == '':
+                next_pg = visited_pgs[ix]
+                ix = ix - 1
 
             if '/wiki/Philosophy' in next_pg:
                 print('Found it! Took {} steps from {}'.format(len(visited_pgs),start_pg))
