@@ -42,37 +42,40 @@ if __name__ == "__main__":
             next_pg = ''
             visited_pgs.append(this_pg)
 
-            # Get the raw HTML for our page
-            response = urlrequest.urlopen(wiki_root + this_pg)
+            try:
+                # Get the raw HTML for our page
+                response = urlrequest.urlopen(wiki_root + this_pg)
+                html = response.read()
+                tree = fromstring(html)
 
-            html = response.read()
-            tree = fromstring(html)
+                pg_name = tree.xpath("//h1[@id='firstHeading']")[0].text_content()
+                if start_pg_name == '':
+                    start_pg_name = pg_name
+                print('({}: {}) {}'.format(start_pg_name, len(visited_pgs)-1, pg_name))
 
-            pg_name = tree.xpath("//h1[@id='firstHeading']")[0].text_content()
-            if start_pg_name == '':
-                start_pg_name = pg_name
-            print('({}: {}) {}'.format(start_pg_name, len(visited_pgs)-1, pg_name))
+                # Pull out paragraphs from the div holding the interesting content
+                tree = tree.xpath("//div[@class='mw-parser-output']")[0]
+                p_nodes = tree.xpath('p')
 
-            # Pull out paragraphs from the div holding the interesting content
-            tree = tree.xpath("//div[@class='mw-parser-output']")[0]
-            p_nodes = tree.xpath('p')
+                for para in p_nodes:
+                    # Find wiki links in the page
+                    link_nodes = para.xpath('a')
+                    for link in link_nodes:
+                        link_str = str(tostring(link))
+                        if 'href="/wiki/' in link_str:
+                            # If we haven't previously visited this link, this is our new target page
+                            link_match = re.search(r'href=[\'"]?([^\'" >]+)', link_str).group(0)
+                            link_bit = link_match.split('href="')[1]
 
-            for para in p_nodes:
-                # Find wiki links in the page
-                link_nodes = para.xpath('a')
-                for link in link_nodes:
-                    link_str = str(tostring(link))
-                    if 'href="/wiki/' in link_str:
-                        # If we haven't previously visited this link, this is our new target page
-                        link_match = re.search(r'href=[\'"]?([^\'" >]+)', link_str).group(0)
-                        link_bit = link_match.split('href="')[1]
+                            if link_bit not in visited_pgs and not (link_bit.startswith('/wiki/Special:')):
+                                next_pg = link_bit
+                                break
+                    else:
+                        continue         # only executed if the inner loop did NOT break
+                    break                # only executed if the inner loop DID break
 
-                        if link_bit not in visited_pgs:
-                            next_pg = link_bit
-                            break
-                else:
-                    continue         # only executed if the inner loop did NOT break
-                break                # only executed if the inner loop DID break
+            except Exception:
+                print('Unexpected error when parsing page {}'.format(this_pg))
 
             # Remember which pages leave us with no links
             if next_pg == '':
