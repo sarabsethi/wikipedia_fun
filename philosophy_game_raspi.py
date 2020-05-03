@@ -48,16 +48,13 @@ if __name__ == "__main__":
             pg_name = tree.xpath("//h1[@id='firstHeading']")[0].text_content()
             if start_pg == '':
                 start_pg = pg_name
-            print('({}) {} - {} steps'.format(start_pg, pg_name, len(visited_pgs)))
+            print('({}: {}) {}'.format(start_pg, len(visited_pgs), pg_name))
 
             # Pull out paragraphs from the div holding the interesting content
             tree = tree.xpath("//div[@class='mw-parser-output']")[0]
             p_nodes = tree.xpath('p')
-            for para in p_nodes:
-                # Messy way of breaking out of nested loops
-                if not next_pg == this_pg:
-                    break
 
+            for para in p_nodes:
                 # Find wiki links in the page
                 link_nodes = para.xpath('a')
                 for link in link_nodes:
@@ -70,6 +67,9 @@ if __name__ == "__main__":
 
                         if next_pg not in visited_pgs:
                             break
+                else:
+                    continue         # only executed if the inner loop did NOT break
+                break                # only executed if the inner loop DID break
 
             if '/wiki/Philosophy' in next_pg:
                 print('Found it! Took {} steps from {}'.format(len(visited_pgs),start_pg))
