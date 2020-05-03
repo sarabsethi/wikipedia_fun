@@ -26,6 +26,7 @@ loops this works quite nicely
 if __name__ == "__main__":
     STATE_PLAYING = 0
     STATE_WON = 1
+    STATE_IMPOSSIBLE = 2
 
     while True:
         wiki_root = 'https://en.wikipedia.org'
@@ -75,13 +76,18 @@ if __name__ == "__main__":
 
             # Remember which pages leave us with no links
             if next_pg == '':
-                no_link_pgs.append(link_bit)
+                no_link_pgs.append(this_pg)
 
             # Make sure we have a valid next page to go to
             ix = -2
             while next_pg in no_link_pgs or next_pg == '':
-                next_pg = visited_pgs[ix]
-                ix = ix - 1
+                try:
+                    next_pg = visited_pgs[ix]
+                    ix = ix - 1
+                except IndexError:
+                    print('Reached dead end - game impossible from {}'.format(start_pg_name))
+                    game_state = STATE_IMPOSSIBLE
+                    break
 
             if '/wiki/Philosophy' in next_pg:
                 print('Found it! Took {} steps from {}'.format(len(visited_pgs)-1,start_pg_name))
