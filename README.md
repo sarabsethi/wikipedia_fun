@@ -20,21 +20,23 @@ My go at automating the Wikipedia game (https://en.wikipedia.org/wiki/Wikipedia:
 Given a starting wikipedia article, just by following links try to get to an unrelated
 end article
 
-Uses wordnet to derive a similarity score between the title of the end page and the
-title of each link in a Wikipedia page, then jumps to the best. Turns out the most
-fiddly bit was dealing with cycles and pages with no links or in non-standard formats
+### How does it work?
+
+We use a wordnet embedding to derive a similarity score between the title of the end page and the
+title of each link in a Wikipedia page, then jumps to the best page. 
+
+Turns out the most fiddly bit was dealing with cycles and pages with no links or in non-standard formats
 Otherwise surprisingly simple and seems to work well!
 
-RANDOM_MODE generates random start and end points. This is pretty tough and most
+I think one of the (many!) major limitations is matching is done on single words there's no concept of phrases or titles made up of multiple words.
+
+### Parameters
+`RANDOM_MODE` generates random start and end points. This is pretty tough and most
 of the time the game ends on failure. Set the links manually to give the game a
 better chance of finishing. Recommended value: False
 
-STRICT_MODE defines whether you have to land on exactly the correct end page or
+`STRICT_MODE` defines whether you have to land on exactly the correct end page or
 whether something "close enough" is fine. Recommended value: True
-
-Just a bit of fun - but would love some input from people who know more about word matching
-to make it cleverer / faster. Major limitation is matching is done on single words
-there's no concept of phrases or titles made up of multiple words
 
 Let me know how you get on - the algorithm was able to get from "Financial engineering" to "Reality" in an impressive 7 steps
 
