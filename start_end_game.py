@@ -25,10 +25,6 @@ RANDOM_MODE generates random start and end points. This is pretty tough and most
 of the time the game ends on failure. Set the links manually to give the game a
 better chance of finishing. Recommended value: False
 
-Just a bit of fun - but would love some input from people who know more about word matching
-to make it cleverer / faster. Major limitation is matching is done on single words
-there's no concept of phrases or titles made up of multiple words
-
 Sarab S Sethi (http://www.imperial.ac.uk/people/s.sethi16)
 s.sethi16@imperial.ac.uk
 '''
