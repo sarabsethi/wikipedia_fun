@@ -33,7 +33,6 @@ if __name__ == "__main__":
         no_link_pgs = []
 
         next_pg = "/wiki/Special:Random"
-        next_pg = "/wiki/On_Dangerous_Ground_(1915_film)"
         start_pg = ''
         game_state = STATE_PLAYING
 
