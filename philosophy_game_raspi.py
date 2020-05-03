@@ -54,9 +54,6 @@ def increment_games_won():
 
 LCD_W = 20
 def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix):
-    # Print number of games won (with commas for thousands, millions etc.)
-    print(f'#{n_won:,}'[:LCD_W].center(LCD_W))
-
     # Print start page (and scroll text if long enough)
     print('{}'.format(start_pg_name)[scroll_ix:scroll_ix+LCD_W].center(LCD_W))
     if len(start_pg_name) > LCD_W:
@@ -68,7 +65,10 @@ def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix):
     print('{}'.format(pg_name)[:LCD_W].center(LCD_W))
 
     # Print number of steps
-    print('{}'.format(n_steps).center(LCD_W))
+    print('#{}'.format(n_steps).center(LCD_W))
+
+    # Print number of games won (with commas for thousands, millions etc.)
+    print(f'{n_won:,} wins'[:LCD_W].center(LCD_W))
 
     return scroll_ix
 
