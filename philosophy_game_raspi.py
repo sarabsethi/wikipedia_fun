@@ -33,7 +33,7 @@ if __name__ == "__main__":
         no_link_pgs = []
 
         next_pg = "/wiki/Special:Random"
-        start_pg = ''
+        start_pg_name = ''
         game_state = STATE_PLAYING
 
         while game_state is STATE_PLAYING:
@@ -48,9 +48,9 @@ if __name__ == "__main__":
             tree = fromstring(html)
 
             pg_name = tree.xpath("//h1[@id='firstHeading']")[0].text_content()
-            if start_pg == '':
-                start_pg = pg_name
-            print('({}: {}) {}'.format(start_pg, len(visited_pgs), pg_name))
+            if start_pg_name == '':
+                start_pg_name = pg_name
+            print('({}: {}) {}'.format(start_pg_name, len(visited_pgs)-1, pg_name))
 
             # Pull out paragraphs from the div holding the interesting content
             tree = tree.xpath("//div[@class='mw-parser-output']")[0]
@@ -84,5 +84,5 @@ if __name__ == "__main__":
                 ix = ix - 1
 
             if '/wiki/Philosophy' in next_pg:
-                print('Found it! Took {} steps from {}'.format(len(visited_pgs),start_pg))
+                print('Found it! Took {} steps from {}'.format(len(visited_pgs)-1,start_pg_name))
                 game_state = STATE_WON
