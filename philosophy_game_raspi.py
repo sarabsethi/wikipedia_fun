@@ -47,12 +47,13 @@ def increment_games_won(lcd, n_steps):
     '''
 
     # Print current page
-    lcd.cursor_pos = (1, 0)
     line_2 = '* Philosophy *'[:LCD_W].center(LCD_W)
     flashes = 0
-    while flashes < 2:
+    while flashes < 3:
+        lcd.cursor_pos = (1, 0)
         lcd.write_string(''.center(LCD_W))
         time.sleep(0.5)
+        lcd.cursor_pos = (1, 0)
         lcd.write_string(line_2)
         time.sleep(1)
         flashes = flashes + 1
