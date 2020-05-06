@@ -46,7 +46,12 @@ def increment_games_won(lcd, n_steps):
     Increment the number of games won in the save file
     '''
 
-    # Print current page
+    # Print number of steps
+    lcd.cursor_pos = (2, 0)
+    line_3 = '#{}'.format(n_steps).center(LCD_W)
+    lcd.write_string(line_3)
+
+    # Flash Philosophy to show game won
     line_2 = '* Philosophy *'[:LCD_W].center(LCD_W)
     flashes = 0
     while flashes < 3:
@@ -57,11 +62,6 @@ def increment_games_won(lcd, n_steps):
         lcd.write_string(line_2)
         time.sleep(1)
         flashes = flashes + 1
-
-    # Print number of steps
-    lcd.cursor_pos = (2, 0)
-    line_3 = '#{}'.format(n_steps).center(LCD_W)
-    lcd.write_string(line_3)
 
     n_won = get_n_won() + 1
 
