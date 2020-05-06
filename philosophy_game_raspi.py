@@ -1,3 +1,5 @@
+import time
+from RPLCD.i2c import CharLCD
 import sys
 import os
 from lxml.html import fromstring, tostring
@@ -53,22 +55,34 @@ def increment_games_won():
 
 
 LCD_W = 20
-def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix):
+def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix, lcd):
     # Print start page (and scroll text if long enough)
-    print('{}'.format(start_pg_name)[scroll_ix:scroll_ix+LCD_W].center(LCD_W))
+    lcd.cursor_pos = (0, 0)
+    line_1 = '{}'.format(start_pg_name)[scroll_ix:scroll_ix+LCD_W].center(LCD_W)
+    lcd.write_string(line_1)
+    print(line_1)
     if len(start_pg_name) > LCD_W:
         scroll_ix = scroll_ix + 1
         if scroll_ix + LCD_W > len(start_pg_name):
             scroll_ix = 0
 
     # Print current page
-    print('{}'.format(pg_name)[:LCD_W].center(LCD_W))
+    lcd.cursor_pos = (1, 0)
+    line_2 = '{}'.format(pg_name)[:LCD_W].center(LCD_W)
+    lcd.write_string(line_2 + '\r\n')
+    print(line_2)
 
     # Print number of steps
-    print('#{}'.format(n_steps).center(LCD_W))
+    lcd.cursor_pos = (2, 0)
+    line_3 = '#{}'.format(n_steps).center(LCD_W)
+    lcd.write_string(line_3 + '\r\n')
+    print(line_3)
 
     # Print number of games won (with commas for thousands, millions etc.)
-    print(f'{n_won:,} wins'[:LCD_W].center(LCD_W))
+    lcd.cursor_pos = (3, 0)
+    line_4 = f'{n_won:,} wins'[:LCD_W].center(LCD_W)
+    lcd.write_string(line_4)
+    print(line_4)
 
     return scroll_ix
 
@@ -79,6 +93,8 @@ if __name__ == "__main__":
     STATE_IMPOSSIBLE = 2
 
     n_won = get_n_won()
+
+    lcd = CharLCD('PCF8574', 0x27)
 
     while True:
         wiki_root = 'https://en.wikipedia.org'
@@ -105,7 +121,7 @@ if __name__ == "__main__":
                 if start_pg_name == '':
                     start_pg_name = pg_name
 
-                scroll_ix = update_screen(start_pg_name, pg_name, len(visited_pgs)-1, n_won, scroll_ix)
+                scroll_ix = update_screen(start_pg_name, pg_name, len(visited_pgs)-1, n_won, scroll_ix, lcd)
 
                 # Pull out paragraphs from the div holding the interesting content
                 tree = tree.xpath("//div[@class='mw-parser-output']")[0]
