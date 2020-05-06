@@ -41,10 +41,26 @@ def get_n_won():
     return int(n_won)
 
 
-def increment_games_won():
+def increment_games_won(lcd, n_steps):
     '''
     Increment the number of games won in the save file
     '''
+
+    # Print current page
+    lcd.cursor_pos = (1, 0)
+    line_2 = '* Philosophy *'[:LCD_W].center(LCD_W)
+    flashes = 0
+    while flashes < 2:
+        lcd.write_string(''.center(LCD_W))
+        time.sleep(0.5)
+        lcd.write_string(line_2)
+        time.sleep(1)
+        flashes = flashes + 1
+
+    # Print number of steps
+    lcd.cursor_pos = (2, 0)
+    line_3 = '#{}'.format(n_steps).center(LCD_W)
+    lcd.write_string(line_3)
 
     n_won = get_n_won() + 1
 
@@ -60,7 +76,6 @@ def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix, lcd):
     lcd.cursor_pos = (0, 0)
     line_1 = '{}'.format(start_pg_name)[scroll_ix:scroll_ix+LCD_W].center(LCD_W)
     lcd.write_string(line_1)
-    print(line_1)
     if len(start_pg_name) > LCD_W:
         scroll_ix = scroll_ix + 1
         if scroll_ix + LCD_W > len(start_pg_name):
@@ -69,20 +84,19 @@ def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix, lcd):
     # Print current page
     lcd.cursor_pos = (1, 0)
     line_2 = '{}'.format(pg_name)[:LCD_W].center(LCD_W)
-    lcd.write_string(line_2 + '\r\n')
-    print(line_2)
+    lcd.write_string(line_2)
 
     # Print number of steps
     lcd.cursor_pos = (2, 0)
     line_3 = '#{}'.format(n_steps).center(LCD_W)
-    lcd.write_string(line_3 + '\r\n')
-    print(line_3)
+    lcd.write_string(line_3)
 
     # Print number of games won (with commas for thousands, millions etc.)
     lcd.cursor_pos = (3, 0)
     line_4 = f'{n_won:,} wins'[:LCD_W].center(LCD_W)
     lcd.write_string(line_4)
-    print(line_4)
+
+    print('{}\n{}\n{}\n{}'.format(line_1, line_2, line_3, line_4))
 
     return scroll_ix
 
@@ -163,6 +177,6 @@ if __name__ == "__main__":
                     break
 
             if next_pg == '/wiki/Philosophy':
-                n_won = increment_games_won()
+                n_won = increment_games_won(lcd, len(visited_pgs))
                 print('Found it! Took {} steps from {} (n_won = {})'.format(len(visited_pgs),start_pg_name,n_won))
                 game_state = STATE_WON
