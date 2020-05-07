@@ -102,7 +102,7 @@ def update_screen(start_pg_name, pg_name, n_steps, n_won, scroll_ix, lcd):
     return scroll_ix
 
 
-if __name__ == "__main__":
+def play_game():
     STATE_PLAYING = 0
     STATE_WON = 1
     STATE_IMPOSSIBLE = 2
@@ -181,3 +181,10 @@ if __name__ == "__main__":
                 n_won = increment_games_won(lcd, len(visited_pgs))
                 print('Found it! Took {} steps from {} (n_won = {})'.format(len(visited_pgs),start_pg_name,n_won))
                 game_state = STATE_WON
+
+if __name__ == '__main__':
+    while True:
+        try:
+            play_game()
+        except Exception:
+            continue
